@@ -81,71 +81,6 @@ function firstPrompt() {
     }); 
 
 }
-
-
-//Function for the product search/purchase, providing options on what product_name, department, budget, and quanity//
-// function productSearch() {
-//   connection.query("SELECT * FROM products", function(err, results) {
-//     inquirer
-//       .prompt([
-//         {
-//           name: "choice", 
-//           type: "rawlist",
-//           choices: function() {
-//             var choiceArray = [];
-//             for (var i = 0; i < results.length; i++) {
-//               choiceArray.push(results[i].product_name);
-//             }
-//             return choiceArray ;
-//           },
-//           message: "What product would you like to purchase?",
-//           pageSize: 50
-//         },
-//         {
-//           name: "stock",
-//           type: "input",
-//           message: "How many would you like to purchase?",
-//           pageSize: 50,
-//           validate: function(value) {
-//             if (isNaN(value) === false) {
-//               return true;
-//             }
-//             return false;
-//           }
-//         },
-//       ])
-//       .then(function(answer) {
-//         var chosenItem;
-//         for (var i = 0; i < results.length; i++) {
-//           if (results[i].product_name === answer.choice) {
-//             chosenItem = results[i];
-//           }
-//         }
-//         showBamazon(); 
-
-//         if (parseInt (answer.stock) <= chosenItem.stock_quantity) {
-//           connection.query(
-//             "UPDATE products SET ? WHERE ?",
-//             [{
-//                 stock_quantity: chosenItem.stock_quantity - answer.stock
-//               }, {
-//                 item_id: chosenItem.item_id
-//               }
-              
-//             ])
-//           console.log("Your order was placed successfully!");
-//           console.log("Your total cost is: $" + (chosenItem.price * answer.stock) + ".  Have a Great Bamazon Day!");
-
-//         }
-//         else {
-//           console.log("Sorry there aren't enough in stock to fullfill this order...");
-          
-//         }
-
-//       });
-//   });
-// }
-
 //Function for the user being able to post an item on Izzy's Bamazon, which department, price, and how many products he would like to post.//
 function addProduct() {
   inquirer
@@ -208,6 +143,7 @@ function addProduct() {
 
 function addInventory() {
   connection.query("SELECT * FROM products", function(err, results) {
+
     inquirer
       .prompt([
         {
@@ -220,7 +156,7 @@ function addInventory() {
             }
             return choiceArray ;
           },
-          message: "What product would you like to purchase?",
+          message: "What product do you need to restock?",
           pageSize: 50
         },
         {
@@ -234,16 +170,17 @@ function addInventory() {
             }
             return false;
           }
+          
         },
       ])
       .then(function(answer) {
         var chosenItem;
         for (var i = 0; i < results.length; i++) {
           if (results[i].product_name === answer.choice) {
-            chosenItem = results[i];
+            chosenItem = results[i]; 
           }
         }
-        
+
         if ((chosenItem !== chosenItem)) {
           console.log("Sorry this product does not exist in Bamazon, if you want to add ") + (chosenItem) + ( " to the Bamazon store, press 4...");
           viewInventory();   
@@ -257,74 +194,15 @@ function addInventory() {
               {
                 item_id: chosenItem.item_id
               },
-              
+
             ])
-          console.log("Your order was placed successfully!");
-          console.log("Your total cost is: $" + (chosenItem.price * answer.stock) + ".  Have a Great Bamazon Day!");
+          console.log("Your order of " + (chosenItem.product_name) + " was placed successfully!");
+          console.log("Your total cost is: $" + (chosenItem.price * answer.stock) + ".Have a Great Bamazon Day!");
           viewInventory();      
         }
       {
       }
       });
+
   });
 }
-
-// function deleteItem () { 
-//   connection.query("SELECT * FROM products", function(err, results) {
-//     inquirer
-//       .prompt([
-//         {
-//           name: "choice", 
-//           type: "rawlist",
-//           choices: function() {
-//             var choiceArray = [];
-//             for (var i = 0; i < results.length; i++) {
-//               choiceArray.push(results[i].product_name);
-//             }
-//             return choiceArray ;
-            
-//           },
-//           message: "What product would you like to remove from stock?",
-//           pageSize: 50
-//         },
-//         {
-//           name: "stock",
-//           type: "input",
-//           message: "How many products would you like to remove?",
-//           pageSize: 50,
-//           validate: function(value) {
-//             if (isNaN(value) === false) {
-//               return true;
-//             }
-//             return false;
-//           }
-//         }
-//       ])
-//       .then(function(answer) {
-//         var chosenItem;
-//         for (var i = 0; i < results.length; i++) {
-//           if (results[i].product_name === answer.choice) {
-//             chosenItem = results[i];
-//           }
-//         }
-//         if (parseInt (answer.stock) === chosenItem.stock_quantity) {
-//           connection.query(
-//             "DELETE FROM products WHERE stock = 'chosenItem.stock_quantity'"); 
-           
-              
-            
-//           console.log("Your successfully deleted ") + (chosenItem.product_name) + ("If you want to add the product back, please post the product");
-//           console.log("Your deleted " + (chosenItem.product_name) + ". From the Bamazon stock. Have a Great Bamazon Day!");
-//           showBamazon();
-//           firstPrompt(); 
-//         }
-//         else {
-//           console.log("Sorry you need to delete more in stock to remove the product...");
-//           showBamazon();
-//           firstPrompt(); 
-
-//         }
-//       });
-  
-//   });
-// }

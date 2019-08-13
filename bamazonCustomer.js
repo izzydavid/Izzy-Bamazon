@@ -224,9 +224,6 @@ function deleteItem () {
         if (parseInt (answer.stock) === chosenItem.stock_quantity) {
           connection.query(
             "DELETE FROM products WHERE stock = 'chosenItem.stock_quantity'"); 
-           
-              
-            
           console.log("Your successfully deleted ") + (chosenItem.product_name) + ("If you want to add the product back, please post the product");
           console.log("Your deleted " + (chosenItem.product_name) + ". From the Bamazon stock. Have a Great Bamazon Day!");
           showBamazon();
