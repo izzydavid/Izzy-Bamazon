@@ -199,76 +199,14 @@ function addProduct() {
         function(err) {
           if (err) throw err;
           console.log("Your product was successfully posted on Bamazon!");
-      showBamazon(); 
-
         }
       );
       firstPrompt();
-
+      viewInventory(); 
     });
 }; 
+
 function addInventory() {
-  inquirer
-    .prompt([
-      {
-        name: "product",
-        type: "input",
-        message: "What is the product you would like to add?",
-        pageSize: 50
-      },
-      {
-        name: "department",
-        type: "input",
-        message: "What department would you like to add your product in?",
-        pageSize: 50
-      },
-      {
-        name: "price",
-        type: "input",
-        message: "What is the price of your product?",
-        pageSize: 50,
-        validate: function(value) {
-          if (isNaN(value) === false) {
-            return true;
-          }
-          return false;
-        }
-      }, 
-      {
-       name: "quantity",
-       type: "input",
-       message: "How many of this product would you like to add on Bamazon?",
-       pageSize: 50, 
-       validate: function(value) {
-        if (isNaN(value) === false) {
-          return true;
-        }
-        return false;
-      }
-      }
-    ])
-    .then(function(answer) {
-      connection.query(
-        "UPDATE products SET ? WHERE ?",
-        {
-          product_name: answer.product,
-          department_name: answer.department,
-          price: answer.price || 0,
-          stock_quantity: answer.quantity, 
-        },
-        function(err) {
-          if (err) throw err;
-          console.log("Your product was successfully posted on Bamazon!");
-      showBamazon(); 
-
-        }
-      );
-      firstPrompt();
-
-    });
-}; 
-
-function deleteItem () { 
   connection.query("SELECT * FROM products", function(err, results) {
     inquirer
       .prompt([
@@ -281,15 +219,14 @@ function deleteItem () {
               choiceArray.push(results[i].product_name);
             }
             return choiceArray ;
-            
           },
-          message: "What product would you like to remove from stock?",
+          message: "What product would you like to purchase?",
           pageSize: 50
         },
         {
           name: "stock",
           type: "input",
-          message: "How many products would you like to remove?",
+          message: "How many would you like to purchase?",
           pageSize: 50,
           validate: function(value) {
             if (isNaN(value) === false) {
@@ -297,7 +234,7 @@ function deleteItem () {
             }
             return false;
           }
-        }
+        },
       ])
       .then(function(answer) {
         var chosenItem;
@@ -306,24 +243,88 @@ function deleteItem () {
             chosenItem = results[i];
           }
         }
-        if (parseInt (answer.stock) === chosenItem.stock_quantity) {
+        
+        if ((chosenItem !== chosenItem)) {
+          console.log("Sorry this product does not exist in Bamazon, if you want to add ") + (chosenItem) + ( " to the Bamazon store, press 4...");
+          viewInventory();   
+        }
+          else  { 
           connection.query(
-            "DELETE FROM products WHERE stock = 'chosenItem.stock_quantity'"); 
+            "UPDATE products SET ? WHERE ?",
+            [{
+                stock_quantity: chosenItem.stock_quantity + parseInt(answer.stock)
+              },
+              {
+                item_id: chosenItem.item_id
+              },
+              
+            ])
+          console.log("Your order was placed successfully!");
+          console.log("Your total cost is: $" + (chosenItem.price * answer.stock) + ".  Have a Great Bamazon Day!");
+          viewInventory();      
+        }
+      {
+      }
+      });
+  });
+}
+
+// function deleteItem () { 
+//   connection.query("SELECT * FROM products", function(err, results) {
+//     inquirer
+//       .prompt([
+//         {
+//           name: "choice", 
+//           type: "rawlist",
+//           choices: function() {
+//             var choiceArray = [];
+//             for (var i = 0; i < results.length; i++) {
+//               choiceArray.push(results[i].product_name);
+//             }
+//             return choiceArray ;
+            
+//           },
+//           message: "What product would you like to remove from stock?",
+//           pageSize: 50
+//         },
+//         {
+//           name: "stock",
+//           type: "input",
+//           message: "How many products would you like to remove?",
+//           pageSize: 50,
+//           validate: function(value) {
+//             if (isNaN(value) === false) {
+//               return true;
+//             }
+//             return false;
+//           }
+//         }
+//       ])
+//       .then(function(answer) {
+//         var chosenItem;
+//         for (var i = 0; i < results.length; i++) {
+//           if (results[i].product_name === answer.choice) {
+//             chosenItem = results[i];
+//           }
+//         }
+//         if (parseInt (answer.stock) === chosenItem.stock_quantity) {
+//           connection.query(
+//             "DELETE FROM products WHERE stock = 'chosenItem.stock_quantity'"); 
            
               
             
-          console.log("Your successfully deleted ") + (chosenItem.product_name) + ("If you want to add the product back, please post the product");
-          console.log("Your deleted " + (chosenItem.product_name) + ". From the Bamazon stock. Have a Great Bamazon Day!");
-          showBamazon();
-          firstPrompt(); 
-        }
-        else {
-          console.log("Sorry you need to delete more in stock to remove the product...");
-          showBamazon();
-          firstPrompt(); 
+//           console.log("Your successfully deleted ") + (chosenItem.product_name) + ("If you want to add the product back, please post the product");
+//           console.log("Your deleted " + (chosenItem.product_name) + ". From the Bamazon stock. Have a Great Bamazon Day!");
+//           showBamazon();
+//           firstPrompt(); 
+//         }
+//         else {
+//           console.log("Sorry you need to delete more in stock to remove the product...");
+//           showBamazon();
+//           firstPrompt(); 
 
-        }
-      });
+//         }
+//       });
   
-  });
-}
+//   });
+// }

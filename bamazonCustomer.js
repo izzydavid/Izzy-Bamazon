@@ -174,11 +174,11 @@ function postItem() {
         function(err) {
           if (err) throw err;
           console.log("Your product was successfully posted on Bamazon!");
-      showBamazon(); 
+          showBamazon(); 
 
         }
       );
-      firstPrompt();
+          firstPrompt();
 
     });
 }; 
