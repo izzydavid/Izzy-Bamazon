@@ -1,6 +1,5 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-
 var connection = mysql.createConnection({
   host: "127.0.0.1",
   // Your port; if not 3306
@@ -26,10 +25,6 @@ var showBamazon = function () {
     console.table(results);
   });
 }
-
-
-
-
 
 //Function of when the user sees the showBamazon function and the user's options to Purchase, Post, Delete their product that they posted only, Exit.//
 function firstPrompt() {
