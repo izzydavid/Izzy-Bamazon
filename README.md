@@ -1,6 +1,3 @@
-<div style="width:100%;height:0;padding-bottom:28%;position:relative;"><iframe src="https://giphy.com/embed/jqTqi0BjnjgMmIOpKV" width="100%" height="100%" style="position:absolute" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></div><p><a href="https://giphy.com/gifs/izzys-bamazoncustomer-jqTqi0BjnjgMmIOpKV">via GIPHY</a></p>
-
-
 # Bamazon
 
 # Node.js & MySQL
