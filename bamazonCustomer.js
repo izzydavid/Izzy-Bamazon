@@ -1,6 +1,5 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-
 var connection = mysql.createConnection({
   host: "127.0.0.1",
   // Your port; if not 3306
@@ -14,21 +13,21 @@ var connection = mysql.createConnection({
 });
 
 //Function to show the existing table/database of products listed on Bamazon, product data came from the top selling products from each department on Amazon. Shorten name of products.//
-  var showBamazon =  function(){
-  connection.query("SELECT * FROM products ORDER BY item_id", (err, res) => {
-    if(err) throw err;
-    console.table(res);
-    firstPrompt()
- })
+function viewInventory(){
+  connection.query('SELECT * FROM products ORDER BY item_id', function (err, results) {
+    if (err) throw err;
+    console.table(results);
+    firstPrompt(); 
+  }); 
 }
 
-//Function to invoke the showBamazon function//
+//Function to invoke the viewInventory function//
   connection.connect(function(err) {
   if (err) throw err;
-  showBamazon()
+  viewInventory()
 });
 
-//Function of when the user sees the showBamazon function and the user's options to Purchase, Post, Delete their product that they posted only, Exit.//
+//Function of when the user sees the viewInventory function and the user's options to Purchase, Post, Delete their product that they posted only, Exit.//
 function firstPrompt() {
   inquirer
     .prompt({
@@ -39,7 +38,6 @@ function firstPrompt() {
       choices: ["Purchase", "Post", "Exit"]
     }) 
     .then(function(answer) {
-      // based on their answer, either call the bid or the post functions
       if (answer.start === "Purchase") {
         productPurchase();
       }
@@ -95,25 +93,23 @@ function productPurchase() {
         if (parseInt (answer.stock) <= chosenItem.stock_quantity) {
           connection.query(
             "UPDATE products SET ? WHERE ?",
-            [ {
+            [ 
+              {
                 stock_quantity: chosenItem.stock_quantity - answer.stock
               }, 
               {
                 item_id: chosenItem.item_id
-                
-              }
-              
-            ])
-          console.log("Your order was placed successfully!");
-          console.log("Your total cost is: $" + (chosenItem.price * answer.stock) + ".  Have a Great Bamazon Day!");
-          showBamazon(); 
-
+              },
+            ]
+          )
+            console.log("Your order of " + (chosenItem.product_name) + " was placed successfully!");
+            console.log("Your total cost is: $" + (chosenItem.price * answer.stock) + ". Have a Great Bamazon Day!");
+          viewInventory(); 
         }
         else {
           console.log("Sorry there aren't enough in stock to fullfill this order...");
-          
+          firstPrompt(); 
         }
-
       });
   });
 }
@@ -166,76 +162,15 @@ function postItem() {
           product_name: answer.product,
           department_name: answer.department,
           price: answer.price || 0,
-          stock_quantity: answer.quantity, 
+          stock_quantity: answer.quantity,
         },
         function(err) {
           if (err) throw err;
-          console.log("Your product was successfully posted on Bamazon!");
-          showBamazon(); 
-
-        }
-      );
-          firstPrompt();
-
-    });
-}; 
-
-function deleteItem () { 
-  connection.query("SELECT * FROM products", function(err, results) {
-    inquirer
-      .prompt([
-        {
-          name: "choice", 
-          type: "rawlist",
-          choices: function() {
-            var choiceArray = [];
-            for (var i = 0; i < results.length; i++) {
-              choiceArray.push(results[i].product_name);
-            }
-            return choiceArray ;
-            
-          },
-          message: "What product would you like to remove from stock?",
-          pageSize: 50
         },
-        {
-          name: "stock",
-          type: "input",
-          message: "How many products would you like to remove?",
-          pageSize: 50,
-          validate: function(value) {
-            if (isNaN(value) === false) {
-              return true;
-            }
-            return false;
-          }
-        }
-      ])
-      .then(function(answer) {
-        var chosenItem;
-        for (var i = 0; i < results.length; i++) {
-          if (results[i].product_name === answer.choice) {
-            chosenItem = results[i];
-          }
-        }
-        if (parseInt (answer.stock) === chosenItem.stock_quantity) {
-          connection.query(
-            "DELETE FROM products WHERE stock = 'chosenItem.stock_quantity'"); 
-          console.log("Your successfully deleted ") + (chosenItem.product_name) + ("If you want to add the product back, please post the product");
-          console.log("Your deleted " + (chosenItem.product_name) + ". From the Bamazon stock. Have a Great Bamazon Day!");
-          showBamazon();
-          firstPrompt(); 
-        }
-        else {
-          console.log("Sorry you need to delete more in stock to remove the product...");
-          showBamazon();
-          firstPrompt(); 
-
-        }
-      });
-  
-  });
-}
-
-
-
+          viewInventory()
+      );
+          console.log("Your was successfully posted on Bamazon!"); 
+          console.log("Your total cost is: $" + (answer.price * answer.quantity) + ". Have a Great Bamazon Day!");
+    },
+    ); 
+}; 
