@@ -19,17 +19,42 @@ connection.connect(function(err) {
   firstPrompt(); 
 });
 
-//Function to show the existing table/database of products listed on Bamazon, product data came from the top selling products from each department on Amazon. Shorten name of products.//
-  var showBamazon =  function(){
-    connection.query("SELECT * FROM products ORDER BY item_id", (err, results) => {
-    if(err) throw err;
-    console.table(results);
-  }); 
+
+//Function of when the user sees the firstprompt function and the user's options are to View products for Sale, View Low Inventory, Add to Inventory, Add New Product, and Exit.//
+function firstPrompt() {
+  inquirer
+    .prompt({
+      name: "start",
+      type: "rawlist",
+      pageSize: 50,
+      message: "Welcome to Izzy's Bamazon! Top selling items from each department! Pick how you would like to shop or post on Bamazon!",
+      choices: ["View products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product", "Exit"]
+    }) 
+    .then(function(answer) {
+      if (answer.start === "View products for Sale") {
+        viewInventory(); 
+      }
+      else if (answer.start === "View Low Inventory") { 
+        ViewLowInventory(); 
+      }
+      else if (answer.start === "Add to Inventory") { 
+        addInventory(); 
+      }
+      else if (answer.start === "Add New Product") {
+        addProduct();
+      } 
+      else{
+        connection.end();
+        console.log("Thank you for coming to Bamazon!. Goodbye. If you are using nodemon and this was a mistake please type 'rs' and enter to come back");
+      }
+
+    }); 
+
 }
 
 //Function that let's the user see the current inventory in Bamazon.//
 function viewInventory(){
-  connection.query('SELECT * FROM products', function (err, results) {
+  connection.query('SELECT * FROM products ORDER BY item_item', function (err, results) {
     if (err) throw err;
     console.table(results);
     firstPrompt(); 
@@ -45,99 +70,7 @@ function ViewLowInventory(){
   }); 
 }
 
-
-//Function of when the user sees the showBamazon function and the user's options to Purchase, Post, Delete their product that they posted only, Exit.//
-function firstPrompt() {
-  inquirer
-    .prompt({
-      name: "start",
-      type: "rawlist",
-      pageSize: 50,
-      message: "Welcome to Izzy's Bamazon! Top selling items from each department! Pick how you would like to shop or post on Bamazon!",
-      choices: ["View products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product", "Exit"]
-    }) 
-    .then(function(answer) {
-      // based on their answer, either call the bid or the post functions
-      if (answer.start === "View products for Sale") {
-        viewInventory(); 
-      }
-      else if (answer.start === "View Low Inventory") { 
-        ViewLowInventory(); 
-      }
-      else if (answer.start === "Add to Inventory") { 
-        addInventory(); 
-      }
-      else if (answer.start === "Add New Product") {
-        addProduct();
-      } 
-      else{
-        console.log("Thank you for coming to Bamazon!. Goodbye. If you are using nodemon and this was a mistake please type 'rs' and enter to come back");
-        connection.end();
-      }
-
-    }); 
-
-}
-//Function for the user being able to post an item on Izzy's Bamazon, which department, price, and how many products he would like to post.//
-function addProduct() {
-  inquirer
-    .prompt([
-      {
-        name: "product",
-        type: "input",
-        message: "What is the item you would like to submit?",
-        pageSize: 50
-      },
-      {
-        name: "department",
-        type: "input",
-        message: "What department would you like to place your product in?",
-        pageSize: 50
-      },
-      {
-        name: "price",
-        type: "input",
-        message: "What is the price of your product?",
-        pageSize: 50,
-        validate: function(value) {
-          if (isNaN(value) === false) {
-            return true;
-          }
-          return false;
-        }
-      }, 
-      {
-       name: "quantity",
-       type: "input",
-       message: "How many products would you like to post on Bamazon?",
-       pageSize: 50, 
-       validate: function(value) {
-        if (isNaN(value) === false) {
-          return true;
-        }
-        return false;
-      }
-      }
-    ])
-    .then(function(answer) {
-      connection.query(
-        "INSERT INTO products SET ?",
-        {
-          product_name: answer.product,
-          department_name: answer.department,
-          price: answer.price || 0,
-          stock_quantity: answer.quantity, 
-        },
-        function(err) {
-          if (err) throw err;
-          console.log("Your product was successfully posted on Bamazon!");
-        }
-      );
-      firstPrompt();
-      viewInventory(); 
-    });
-}; 
-
+//Function that allows a user to add onto the stock_quantity for the products up for sale.//
 function addInventory() {
   connection.query("SELECT * FROM products", function(err, results) {
 
@@ -203,3 +136,74 @@ function addInventory() {
 
   });
 }
+
+//Function for the user being able to post an item on Izzy's Bamazon, which department, price, and how many products he would like to post.//
+function addProduct() {
+  inquirer
+    .prompt([
+      {
+        name: "product",
+        type: "input",
+        message: "What is the item you would like to submit?",
+        pageSize: 50
+      },
+      {
+        name: "department",
+        type: "input",
+        message: "What department would you like to place your product in?",
+        pageSize: 50
+      },
+      {
+        name: "price",
+        type: "input",
+        message: "What is the price of your product?",
+        pageSize: 50,
+        validate: function(value) {
+          if (isNaN(value) === false) {
+            return true;
+          }
+          return false;
+        }
+      }, 
+      {
+       name: "quantity",
+       type: "input",
+       message: "How many products would you like to post on Bamazon?",
+       pageSize: 50, 
+       validate: function(value) {
+        if (isNaN(value) === false) {
+          return true;
+        }
+        return false;
+      }
+      }
+    ])
+    .then(function(answer) {
+      var chosenItem;
+        for (var i = 0; i < results.length; i++) {
+          if (results[i].product_name === answer.choice) {
+            chosenItem = results[i];
+          }
+        }
+      connection.query(
+        "INSERT INTO products SET ?",
+        {
+          product_name: answer.product,
+          department_name: answer.department,
+          price: answer.price || 0,
+          stock_quantity: answer.quantity, 
+        },
+        function(err) {
+          if (err) throw err;
+          console.log("Your total cost is: $" + (answer.price * answer.quantity) + " .Have a Great Bamazon Day!");
+          console.log("Your order of " + (chosenItem.product_name) + " was placed successfully!");
+
+
+        }
+
+      );
+      viewInventory();      
+
+    }
+    );
+}; 
