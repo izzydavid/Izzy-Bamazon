@@ -15,14 +15,12 @@ var connection = mysql.createConnection({
 
 //Function to show the existing table/database of products listed on Bamazon, product data came from the top selling products from each department on Amazon. Shorten name of products.//
   var showBamazon =  function(){
-
   connection.query("SELECT * FROM products ORDER BY item_id", (err, res) => {
     if(err) throw err;
     console.table(res);
     firstPrompt()
  })
 }
-
 
 //Function to invoke the showBamazon function//
   connection.connect(function(err) {
@@ -38,28 +36,25 @@ function firstPrompt() {
       type: "rawlist",
       pageSize: 50,
       message: "Welcome to Izzy's Bamazon! Top selling items from each department! Pick how you would like to shop or post on Bamazon!",
-      choices: ["Purchase", "Post", "Delete", "Exit"]
+      choices: ["Purchase", "Post", "Exit"]
     }) 
     .then(function(answer) {
       // based on their answer, either call the bid or the post functions
       if (answer.start === "Purchase") {
-        productSearch();
+        productPurchase();
       }
       else if (answer.start === "Post") {
         postItem();
       } 
-      else if (answer.start === "Delete") { 
-        deleteItem()
-      }
       else{
-        connection.end();
         console.log("Thank you for coming to Bamazon!. Goodbye. If you are using nodemon and this was a mistake please type 'rs' and enter to come back");
+        connection.end();
       }
     }); 
 }
 
 //Function for the product search/purchase, providing options on what product_name, department, budget, and quanity//
-function productSearch() {
+function productPurchase() {
   connection.query("SELECT * FROM products", function(err, results) {
     inquirer
       .prompt([
@@ -96,20 +91,22 @@ function productSearch() {
             chosenItem = results[i];
           }
         }
-        showBamazon(); 
 
         if (parseInt (answer.stock) <= chosenItem.stock_quantity) {
           connection.query(
             "UPDATE products SET ? WHERE ?",
-            [{
+            [ {
                 stock_quantity: chosenItem.stock_quantity - answer.stock
-              }, {
+              }, 
+              {
                 item_id: chosenItem.item_id
+                
               }
               
             ])
           console.log("Your order was placed successfully!");
           console.log("Your total cost is: $" + (chosenItem.price * answer.stock) + ".  Have a Great Bamazon Day!");
+          showBamazon(); 
 
         }
         else {

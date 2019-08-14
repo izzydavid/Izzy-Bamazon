@@ -27,23 +27,8 @@ connection.connect(function(err) {
   }); 
 }
 
-//Function that let's the user see the current inventory in Bamazon.//
-function viewInventory(){
-  connection.query('SELECT * FROM products', function (err, results) {
-    if (err) throw err;
-    console.table(results);
-    firstPrompt(); 
-  }); 
-}
 
-//Function that allows a user to see Bamazon products that have a stock count of less than 5.//
-function ViewLowInventory(){
-  connection.query('SELECT * FROM products WHERE stock_quantity < 5', function (err, results) {
-    if (err) throw err;
-    console.table(results);
-    firstPrompt(); 
-  }); 
-}
+
 
 
 //Function of when the user sees the showBamazon function and the user's options to Purchase, Post, Delete their product that they posted only, Exit.//
@@ -54,32 +39,37 @@ function firstPrompt() {
       type: "rawlist",
       pageSize: 50,
       message: "Welcome to Izzy's Bamazon! Top selling items from each department! Pick how you would like to shop or post on Bamazon!",
-      choices: ["View products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product", "Exit"]
+      choices: ["View Product Sales by Department", "Exit"]
     }) 
     .then(function(answer) {
       // based on their answer, either call the bid or the post functions
-      if (answer.start === "View products for Sale") {
-        viewInventory(); 
+      if (answer.start === "View Product Sales by Department") {
+        viewDepartment(); 
       }
-      else if (answer.start === "View Low Inventory") { 
-        ViewLowInventory(); 
+      else if (answer.start === "Create New Department") { 
+        createDepartment(); 
       }
-      else if (answer.start === "Add to Inventory") { 
-        addInventory(); 
-      }
-      else if (answer.start === "Add New Product") {
-        addProduct();
-      } 
       else{
         console.log("Thank you for coming to Bamazon!. Goodbye. If you are using nodemon and this was a mistake please type 'rs' and enter to come back");
         connection.end();
+
       }
 
     }); 
 
+
+    function viewDepartment() {
+        connection.query(
+          "SELECT department_id, departments.department_name, over_head_costs, SUM(product_sales) AS total_sales, (SUM(product_sales) - over_head_costs) AS profit FROM departments RIGHT JOIN products ON products.department_name = departments.department_name GROUP BY department_id, department_name",
+          (err, results) => {
+            console.error(err);
+            console.table(results);
+          }
+        );
+      }
 }
 //Function for the user being able to post an item on Izzy's Bamazon, which department, price, and how many products he would like to post.//
-function addProduct() {
+function createDepartment() {
   inquirer
     .prompt([
       {
@@ -203,3 +193,39 @@ function addInventory() {
 
   });
 }
+
+function songAndAlbumSearch() {
+    inquirer
+      .prompt({
+        name: "artist",
+        type: "input",
+        message: "What artist would you like to search for?"
+      })
+      .then(function(answer) {
+        var query = "SELECT top_albums.year, top_albums.album, top_albums.position, top5000.song, top5000.artist ";
+        query += "FROM top_albums INNER JOIN top5000 ON (top_albums.artist = top5000.artist AND top_albums.year ";
+        query += "= top5000.year) WHERE (top_albums.artist = ? AND top5000.artist = ?) ORDER BY top_albums.year, top_albums.position";
+  
+        connection.query(query, [answer.artist, answer.artist], function(err, res) {
+          console.log(res.length + " matches found!");
+          for (var i = 0; i < res.length; i++) {
+            console.log(
+              i+1 + ".) " +
+                "Year: " +
+                res[i].year +
+                " Album Position: " +
+                res[i].position +
+                " || Artist: " +
+                res[i].artist +
+                " || Song: " +
+                res[i].song +
+                " || Album: " +
+                res[i].album
+            );
+          }
+  
+          firstPrompt();
+        });
+      });
+  }
+  

@@ -35,4 +35,36 @@ VALUES (9, "Pokemon Detective Pikachu", "Movies & TV", 24.96, 82);
 INSERT INTO products (item_id, product_name, department_name, price, stock_quantity) 
 VALUES (10, "Thermos Funtainer 10 Ounce", "Kitchen & Dining", 16.24, 63);   
 
-SELECT * FROM bamazon_db; 
+
+
+CREATE TABLE departments (
+  department_id INT AUTO_INCREMENT NOT NULL, 
+  department_name VARCHAR(50),
+  over_head_costs DECIMAL (10,2) NULL, 
+  PRIMARY KEY (department_id)
+); 
+
+INSERT INTO departments (department_id, department_name, over_head_costs) 
+VALUES (1, "Toys & Games", 3000.00);   
+INSERT INTO departments (department_id, department_name, over_head_costs) 
+VALUES (2, "Electronics", 55000.00);   
+INSERT INTO departments (department_id, department_name, over_head_costs) 
+VALUES (3, "Camera & Photo", 11209.98);   
+INSERT INTO departments (department_id, department_name, over_head_costs) 
+VALUES (4, "Video Games", 4000.00);   
+INSERT INTO departments (department_id, department_name, over_head_costs) 
+VALUES (5, "Books", 3200.00);   
+INSERT INTO departments (department_id, department_name, over_head_costs) 
+VALUES (6, "Clothing, Shoes & Jewelry", 3800.00);   
+INSERT INTO departments (department_id, department_name, over_head_costs) 
+VALUES (7, "Cell Phones & Accessories", 2500.00);   
+INSERT INTO departments (department_id, department_name, over_head_costs) 
+VALUES (8, "Kindle Store", 4500.00);   
+INSERT INTO departments (department_id, department_name, over_head_costs) 
+VALUES (9, "Movies & TV", 6800.00);   
+INSERT INTO departments (department_id, department_name, over_head_costs) 
+VALUES (10, "Kitchen & Dining", 7500.00);   
+
+
+SELECT * FROM departments; 
+SELECT * FROM products; 
