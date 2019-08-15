@@ -7,8 +7,8 @@ USE bamazon_db;
 
 CREATE TABLE products (
   item_id INT AUTO_INCREMENT NOT NULL, 
-  product_name VARCHAR(50),
-  department_name VARCHAR (50), 
+  product_name VARCHAR(250),
+  department_name VARCHAR (250), 
   price DECIMAL (10,2) NULL, 
   stock_quantity INT NULL,
   PRIMARY KEY (item_id)

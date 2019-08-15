@@ -73,7 +73,6 @@ function ViewLowInventory(){
 //Function that allows a user to add onto the stock_quantity for the products up for sale.//
 function addInventory() {
   connection.query("SELECT * FROM products", function(err, results) {
-
     inquirer
       .prompt([
         {

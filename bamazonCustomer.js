@@ -45,6 +45,7 @@ function firstPrompt() {
         postItem();
       } 
       else{
+        (answer.start === "Exit")
         console.log("Thank you for coming to Bamazon!. Goodbye. If you are using nodemon and this was a mistake please type 'rs' and enter to come back");
         connection.end();
       }
@@ -95,34 +96,36 @@ function productPurchase() {
             "UPDATE products SET ? WHERE ?",
             [ 
               {
-                stock_quantity: chosenItem.stock_quantity - answer.stock
+                stock_quantity:  chosenItem.stock_quantity - parseInt(answer.stock)
               }, 
               {
                 item_id: chosenItem.item_id
               },
             ]
           )
-            console.log("Your order of " + (chosenItem.product_name) + " was placed successfully!");
+            console.log("Your order of " + (answer.stock) , (chosenItem.product_name) + " was placed successfully!");
             console.log("Your total cost is: $" + (chosenItem.price * answer.stock) + ". Have a Great Bamazon Day!");
           viewInventory(); 
         }
         else {
-          console.log("Sorry there aren't enough in stock to fullfill this order...");
-          firstPrompt(); 
+          console.log("Sorry there aren't enough" , (chosenItem.product_name) + " in stock to fullfill this order...");
+          viewInventory(); 
+
         }
       });
   });
 }
-
 //Function for the user being able to post an item on Izzy's Bamazon, which department, price, and how many products he would like to post.//
 function postItem() {
-  inquirer
-    .prompt([
+  
+  connection.query("SELECT * FROM products WHERE ?", function() {
+    inquirer
+    .prompt([  
       {
-        name: "product",
+        name: "name",
         type: "input",
         message: "What is the item you would like to submit?",
-        pageSize: 50
+        pageSize: 50,
       },
       {
         name: "department",
@@ -156,21 +159,36 @@ function postItem() {
       }
     ])
     .then(function(answer) {
-      connection.query(
-        "INSERT INTO products SET ?",
-        {
-          product_name: answer.product,
-          department_name: answer.department,
-          price: answer.price || 0,
-          stock_quantity: answer.quantity,
-        },
-        function(err) {
-          if (err) throw err;
-        },
-          viewInventory()
-      );
-          console.log("Your was successfully posted on Bamazon!"); 
-          console.log("Your total cost is: $" + (answer.price * answer.quantity) + ". Have a Great Bamazon Day!");
-    },
-    ); 
-}; 
+      connection.query("SELECT * FROM products", function (err, results) {     
+        if(err) throw (err);
+        //This is the portion defines how a user cannot post the same product onto Bamazon more than once.//
+          var chosenItem; 
+          for (var i = 0; i < results.length; i++) {
+            if(err) throw (err); 
+                chosenItem = results[i].product_name 
+          }
+          if (answer.name !== chosenItem) {
+            if(err) throw (err); 
+            
+            connection.query("INSERT INTO products SET ?",
+            {
+              product_name: answer.name,
+              department_name: answer.department,
+              price: answer.price || 0,
+              stock_quantity: answer.quantity,
+            });     
+              console.table(answer);
+              console.log("You successfully posted your " + (answer.quantity) , (answer.name) + " products onto Izzy's Bamazon!"); 
+              console.log("Your total cost is: $" + (answer.price * answer.quantity) + ". Have a Great Bamazon Day!");
+              viewInventory(); 
+          }
+          else {
+            if(err) throw (err); 
+              console.log("Sorry the " + (answer.name) , "has already been posted on Izzy's Bamazon!");  
+              console.table(answer);
+              viewInventory(); 
+        };   
+      });    
+    });  
+  });
+};
