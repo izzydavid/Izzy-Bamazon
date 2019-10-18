@@ -54,7 +54,7 @@ function firstPrompt() {
 
 //Function that let's the user see the current inventory in Bamazon.//
 function viewInventory(){
-  connection.query('SELECT * FROM products ORDER BY item_item', function (err, results) {
+  connection.query('SELECT * FROM products ORDER BY item_id', function (err, results) {
     if (err) throw err;
     console.table(results);
     firstPrompt(); 
@@ -138,13 +138,15 @@ function addInventory() {
 
 //Function for the user being able to post an item on Izzy's Bamazon, which department, price, and how many products he would like to post.//
 function addProduct() {
-  inquirer
-    .prompt([
+  
+  connection.query("SELECT * FROM products WHERE ?", function() {
+    inquirer
+    .prompt([  
       {
-        name: "product",
+        name: "name",
         type: "input",
         message: "What is the item you would like to submit?",
-        pageSize: 50
+        pageSize: 50,
       },
       {
         name: "department",
@@ -178,31 +180,36 @@ function addProduct() {
       }
     ])
     .then(function(answer) {
-      var chosenItem;
-        for (var i = 0; i < results.length; i++) {
-          if (results[i].product_name === answer.choice) {
-            chosenItem = results[i];
+      connection.query("SELECT * FROM products", function (err, results) {     
+        if(err) throw (err);
+        //This is the portion defines how a user cannot post the same product onto Bamazon more than once.//
+          var chosenItem; 
+          for (var i = 0; i < results.length; i++) {
+            if(err) throw (err); 
+                chosenItem = results[i].product_name
           }
-        }
-      connection.query(
-        "INSERT INTO products SET ?",
-        {
-          product_name: answer.product,
-          department_name: answer.department,
-          price: answer.price || 0,
-          stock_quantity: answer.quantity, 
-        },
-        function(err) {
-          if (err) throw err;
-          console.log("Your total cost is: $" + (answer.price * answer.quantity) + " .Have a Great Bamazon Day!");
-          console.log("Your order of " + (chosenItem.product_name) + " was placed successfully!");
-
-
-        }
-
-      );
-      viewInventory();      
-
-    }
-    );
-}; 
+          if (answer.name !== chosenItem) {
+            if(err) throw (err); 
+            
+            connection.query("INSERT INTO products SET ?",
+            {
+              product_name: answer.name,
+              department_name: answer.department,
+              price: answer.price || 0,
+              stock_quantity: answer.quantity,
+            });     
+              console.table(answer);
+              console.log("You successfully posted your " + (answer.quantity) , (answer.name) + " products onto Izzy's Bamazon!"); 
+              console.log("Your total cost is: $" + (answer.price * answer.quantity) + ". Have a Great Bamazon Day!");
+              viewInventory(); 
+          }
+          else {
+            if(err) throw (err); 
+              console.log("Sorry the " + (answer.name) , "has already been posted on Izzy's Bamazon!");  
+              console.table(answer);
+              viewInventory(); 
+        };   
+      });    
+    });  
+  });
+};

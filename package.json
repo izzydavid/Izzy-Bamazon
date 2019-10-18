@@ -1,8 +1,8 @@
 {
-  "name": "BamazonCustomer",
+  "name": "Izzy's Bamazon",
   "version": "1.0.0",
   "description": "Homework",
-  "main": "bamazonCustomer.js",
+  "main": "",
   "dependencies": {
     "cli-table3": "^0.5.1",
     "inquirer": "^6.2.1",

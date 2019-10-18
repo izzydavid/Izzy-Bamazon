@@ -25,7 +25,7 @@ VALUES (4, "PlayStation Gift Card", "Video Games", 10, 78);
 INSERT INTO products (item_id, product_name, department_name, price, stock_quantity) 
 VALUES (5, "Beloved", "Books", 12.53, 59);   
 INSERT INTO products (item_id, product_name, department_name, price, stock_quantity) 
-VALUES (6, "DB MOON Tshirt Dresses", "Clothing, Shoes & Jewelry", 20.99, 429);   
+VALUES (6, "DB MOON Tshirt Dresses", "Clothing, Shoes & Jewelry", 20.99, 429);  
 INSERT INTO products (item_id, product_name, department_name, price, stock_quantity) 
 VALUES (7, "Apple AirPods", "Cell Phones & Accessories", 144.99, 4);   
 INSERT INTO products (item_id, product_name, department_name, price, stock_quantity) 
@@ -66,5 +66,5 @@ INSERT INTO departments (department_id, department_name, over_head_costs)
 VALUES (10, "Kitchen & Dining", 7500.00);   
 
 
-SELECT * FROM departments; 
-SELECT * FROM products; 
+SELECT * FROM bamazon_db.departments; 
+SELECT * FROM bamazon_db.products;
